@@ -306,10 +306,46 @@ plt.savefig("index_comparison_bar_chart.png", dpi=200)
 plt.close()
 print("Saved: index_comparison_bar_chart.png\n")
 
+
+# =====================================================================
+# STEP 8 — SENSITIVITY LINE CHART (% change vs. distortion severity,
+# one line per index -- shows Gini/Palma declining while Theil rises)
+# =====================================================================
+
+print("=" * 60)
+print("STEP 8: Building sensitivity line chart")
+print("=" * 60)
+
+severities_full = [0, 0.10, 0.20, 0.30]
+pct_changes = {"Gini": [0], "Palma": [0], "Theil": [0]}
+
+for s in severities_full[1:]:
+    distorted = inject_noise_nested(true_income, s, seed=1)
+    pct_changes["Gini"].append(100 * (gini(distorted) - base_gini) / base_gini)
+    pct_changes["Palma"].append(100 * (palma(distorted) - base_palma) / base_palma)
+    pct_changes["Theil"].append(100 * (theil(distorted) - base_theil) / base_theil)
+
+fig, ax = plt.subplots(figsize=(7, 5))
+for name, vals in pct_changes.items():
+    ax.plot([s * 100 for s in severities_full], vals, marker='o', linewidth=2.5,
+             label=name, color=colors[name])
+
+ax.axhline(0, color='gray', linestyle='--', linewidth=1)
+ax.set_xlabel("Distortion severity (% of bottom+top deciles affected)")
+ax.set_ylabel("% change in index value from baseline")
+ax.set_title("Index Sensitivity to Distortion Severity")
+ax.legend()
+plt.tight_layout()
+plt.savefig("sensitivity_line_chart.png", dpi=200)
+plt.close()
+print("Saved: sensitivity_line_chart.png\n")
+
+
 print("=" * 60)
 print("ALL STEPS COMPLETE.")
-print("Check your folder for 3 PNG files:")
+print("Check your folder for 4 PNG files:")
 print("  - lorenz_comparison.png")
 print("  - rubric_radar_chart.png")
 print("  - index_comparison_bar_chart.png")
+print("  - sensitivity_line_chart.png")
 print("=" * 60)
