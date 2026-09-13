@@ -1,30 +1,10 @@
-"""
-Full Simulation Study — India Income Inequality EE
-====================================================
-Runs the complete pipeline: dataset construction, baseline indices,
-severity-sweep simulation, bootstrap confidence intervals, Lorenz
-crossing check, and both charts (radar + comparison bar).
-
-REQUIREMENTS (install once, in a terminal):
-    pip install numpy matplotlib
-
-HOW TO RUN:
-    python full_simulation_study.py
-
-This will print all results to the terminal AND save two PNG chart
-files (rubric_radar_chart.png, index_comparison_bar_chart.png) in the
-same folder you run it from.
-"""
-
 import numpy as np
 import matplotlib.pyplot as plt
 
-# =====================================================================
-# STEP 1 — BUILD THE CALIBRATED SYNTHETIC DATASET
-# (lognormal body + Pareto tail, calibrated so the top 10% holds ~57%
-# of total income, matching the World Inequality Database's real
-# reported figure for India)
-# =====================================================================
+
+# BUILDING THE CALIBRATED SYNTHETIC DATASET by incorporating the following features:
+# lognormal body + Pareto tail, calibrated so the top 10% holds ~57% of total income, matching the World Inequality Database's real reported figure for India)
+
 
 N = 20000
 THRESHOLD_PERCENTILE = 90
@@ -64,9 +44,9 @@ print(f"Top-10% share achieved: {top_share(true_income):.3f} (target {TARGET_TOP
 print(f"Median income: Rs.{np.median(true_income):.0f}\n")
 
 
-# =====================================================================
+
 # STEP 2 — INDEX FUNCTIONS (Gini, Palma, Theil)
-# =====================================================================
+
 
 def gini(x):
     x = np.sort(x)
@@ -90,8 +70,6 @@ def theil(x):
 
 
 def ge2(x):
-    """Generalized entropy at alpha=2 (the proposed index). No logarithm --
-    well-defined at x=0, unlike theil() above."""
     x = np.asarray(x)
     mean_x = x.mean()
     return 0.5 * (np.mean((x / mean_x) ** 2) - 1)
@@ -109,12 +87,7 @@ print(f"  Gini:  {base_gini:.4f}")
 print(f"  Palma: {base_palma:.4f}")
 print(f"  Theil: {base_theil:.4f}\n")
 
-
-# =====================================================================
-# STEP 3 — SEVERITY SWEEP SIMULATION (nested noise injection so that
-# 20% distortion always includes the same households as 10%, plus more
-# -- this keeps the severity sweep monotonic and properly comparable)
-# =====================================================================
+# STEP 3 — SEVERITY SWEEP SIMULATION (nested noise injection so that 20% distortion always includes the same households as 10%)
 
 def inject_noise_nested(x, pct, reduction=0.5, seed=1):
     rng = np.random.default_rng(seed)
@@ -166,10 +139,8 @@ print("reducing top-decile incomes also lowers the overall mean, which")
 print("pushes every remaining household's y_i/mean ratio UP, partially")
 print("offsetting the direct effect. Gini is not affected this way.\n")
 
-
-# =====================================================================
 # STEP 4 — BOOTSTRAP CONFIDENCE INTERVALS
-# =====================================================================
+
 
 def bootstrap_ci(data, func, n_boot=1000, seed=0):
     rng = np.random.default_rng(seed)
@@ -196,9 +167,7 @@ print("reliance on two extreme-tail sums makes it more statistically volatile")
 print("under resampling, given how heavy-tailed India's income distribution is.\n")
 
 
-# =====================================================================
 # STEP 5 — LORENZ CURVE CROSSING CHECK
-# =====================================================================
 
 def lorenz_curve(x):
     x = np.sort(x)
@@ -306,11 +275,8 @@ plt.savefig("index_comparison_bar_chart.png", dpi=200)
 plt.close()
 print("Saved: index_comparison_bar_chart.png\n")
 
+# STEP 8 — SENSITIVITY LINE CHART (% change vs. distortion severity, one line per index -- shows Gini/Palma declining while Theil rises)
 
-# =====================================================================
-# STEP 8 — SENSITIVITY LINE CHART (% change vs. distortion severity,
-# one line per index -- shows Gini/Palma declining while Theil rises)
-# =====================================================================
 
 print("=" * 60)
 print("STEP 8: Building sensitivity line chart")
